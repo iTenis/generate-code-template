@@ -1,0 +1,62 @@
+package ${package.Mapper};
+
+import ${package.Entity}.${entity};
+import org.apache.ibatis.annotations.Param;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * $!{table.comment} Mapper 接口
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+public interface ${table.mapperName} {
+
+    /**
+    * 条件查询List<${entity}>
+    *
+    * @param params 查询参数
+    * @return List<${entity}>
+    */
+    List<${entity}> query${entity}ByParams(@Param("params") Map<String, Object> params);
+
+    /**
+     * 插入记录
+     *
+     * @param record 查询参数
+     * @return 条数
+     */
+    int insertSelective(${entity} record);
+
+    /**
+     * 更新记录
+     *
+     * @param record 查询参数
+     * @return 条数
+     */
+    int updateByPrimaryKeySelective(${entity} record);
+
+    /**
+     * 软删除记录
+     *
+     * @param id 查询参数
+     * @return 条数
+     */
+    int softDeleteById(@Param("id") Long id);
+
+    /**
+     * 根据主键查询
+     *
+     * @param id 查询参数
+     * @return 记录
+     */
+    ${entity} findById(@Param("id") Long id);
+
+    /**
+     * 根据所有记录
+     *
+     * @return 记录列表
+     */
+    List<${entity}> findAll();
+}

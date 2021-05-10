@@ -1,0 +1,58 @@
+package ${cfg.DTOPackage};
+
+#foreach($pkg in ${table.importPackages})
+    #if(${pkg.indexOf("com.baomidou.mybatisplus")}==-1)
+import ${pkg};
+    #end
+#end
+#if(${swagger2})
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+#end
+#if(${entityLombokModel})
+import lombok.Data;
+#if(${chainModel})
+import lombok.experimental.Accessors;
+#end
+#end
+
+/**
+ * $!{table.comment}DTO类
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+#if(${entityLombokModel})
+@Data
+#if(${chainModel})
+@Accessors(chain = true)
+#end
+#end
+#if(${swagger2})
+@ApiModel(value="${entity}DTO", description = "注意！！当该对象作为body传参时，对象名称并不是key,直接将对象值json字符串放入body实体即可！！")
+#end
+public class ${entity}DTO implements Serializable{
+## ----------  BEGIN 字段循环遍历  ----------
+#foreach($field in ${table.fields})
+
+#if(${field.keyFlag})
+#set($keyPropertyName=${field.propertyName})
+#end
+#if("$!field.comment" != "")
+  #if(${swagger2})
+    @ApiModelProperty(value = "${field.comment}")
+  #else
+    /**
+     * ${field.comment}
+     */
+  #end
+#end
+## 乐观锁注解
+#if(${versionFieldName}==${field.name})
+    @Version
+#end
+    private ${field.propertyType} ${field.propertyName};
+#end
+## ----------  END 字段循环遍历  ----------
+
+}

@@ -1,0 +1,128 @@
+package ${cfg.DAOPackage};
+
+import ${package.Entity}.${entity};
+import ${package.Mapper}.${table.mapperName};
+import ${cfg.CONVERTERPackage}.${entity}Converter;
+import ${cfg.DTOPackage}.${entity}DTO;
+import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.ymm.activity.common.util.BeanUtility;
+import com.ymm.activity.dto.CommonPageResponseDTO;
+
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Objects;
+
+/**
+ * $!{table.comment} Dao类
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+@Repository
+public class ${entity}Dao {
+
+    @Resource
+    ${table.mapperName} ${table.mapperName.substring(0, 1).toLowerCase()}${table.mapperName.substring(1)};
+
+    @Resource
+    ${entity}Converter ${entity.substring(0, 1).toLowerCase()}${entity.substring(1)}Converter;
+
+    /**
+    * 通用条件查询
+    *
+    * @param params 参数
+    * @return  结果
+    */
+    List<${entity}DTO> query${entity}ByParams(Map<String, Object> params) {
+        return ${entity.substring(0, 1).toLowerCase()}${entity.substring(1)}Converter.to(${table.mapperName.substring(0, 1).toLowerCase()}${table.mapperName.substring(1)}.query${entity}ByParams(params));
+    }
+
+    /**
+    * 通用条件分页查询
+    *
+    * @param params 参数
+    * @param pageNo 页码
+    * @param pageSize   页大小
+    * @return   分页对象
+    */
+    CommonPageResponseDTO<${entity}DTO> query${entity}ByParams(Map<String, Object> params, Integer pageNo, Integer pageSize) {
+        CommonPageResponseDTO<${entity}DTO> responseDTO = new CommonPageResponseDTO<>();
+        if(CollectionUtils.isEmpty(params)){
+            responseDTO = findAll(pageNo, pageSize);
+        }else {
+            PageInfo<${entity}> entityPageInfo = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(
+                    () -> query${entity}ByParams(params));
+            responseDTO.setPageList(${entity.substring(0, 1).toLowerCase()}${entity.substring(1)}Converter.to(entityPageInfo.getList()));
+            responseDTO.setTotalResults(entityPageInfo.getTotal());
+        }
+        return responseDTO;
+    }
+
+    /**
+    * 插入记录
+    *
+    * @param record 记录
+    * @return 主键id
+    */
+    Long insertSelective(${entity}DTO record) {
+        ${entity} entity = BeanUtility.beanCopy(record, ${entity}.class);
+        int count = ${table.mapperName.substring(0, 1).toLowerCase()}${table.mapperName.substring(1)}.insertSelective(entity);
+        if (count > 0) {
+            return record.getId();
+        }
+        return -1L;
+    }
+
+    /**
+    * 更新记录
+    *
+    * @param record 对象
+    * @return 更新条数
+    */
+    int updateByPrimaryKeySelective(${entity}DTO record) {
+        ${entity} entity = BeanUtility.beanCopy(record, ${entity}.class);
+        return ${table.mapperName.substring(0, 1).toLowerCase()}${table.mapperName.substring(1)}.insertSelective(entity);
+    }
+
+    /**
+    * 软删除
+    *
+    * @param id 主键Id
+    * @return 个数
+    */
+    int softDeleteById(Long id) {
+        return ${table.mapperName.substring(0, 1).toLowerCase()}${table.mapperName.substring(1)}.softDeleteById(id);
+    }
+
+    /**
+    * 根据id查询
+    *
+    * @param id 主键
+    */
+    ${entity} findById(Long id) {
+        if(Objects.isNull(id)){
+            return null;
+        }
+        return ${table.mapperName.substring(0, 1).toLowerCase()}${table.mapperName.substring(1)}.findById(id);
+    }
+
+    /**
+    * 分页查询所有
+    * @param pageNo 页码
+    * @param pageSize 页大小
+    * @return 分页对象
+    */
+    CommonPageResponseDTO<${entity}DTO> findAll(Integer pageNo, Integer pageSize) {
+        CommonPageResponseDTO<${entity}DTO> responseDTO = new CommonPageResponseDTO<>();
+        PageInfo<${entity}> entityPageInfo = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(
+                () -> ${table.mapperName.substring(0, 1).toLowerCase()}${table.mapperName.substring(1)}.findAll());
+        responseDTO.setPageList(${entity.substring(0, 1).toLowerCase()}${entity.substring(1)}Converter.to(entityPageInfo.getList()));
+        responseDTO.setTotalResults(entityPageInfo.getTotal());
+        return responseDTO;
+    }
+}

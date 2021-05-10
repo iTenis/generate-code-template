@@ -1,0 +1,16 @@
+package ${cfg.CONVERTERPackage};
+
+import ${package.Entity}.${entity};
+import ${cfg.DTOPackage}.${entity}DTO;
+import com.ymm.trade.converter.IPairConverter;
+import org.mapstruct.Mapper;
+
+/**
+ * $!{table.comment} Converter类
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+@Mapper(componentModel = "spring")
+public interface ${entity}Converter  extends IPairConverter<${entity}, ${entity}DTO> {
+}

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="${package.Mapper}.${table.mapperName}">
+#if(${enableCache})
+    <!-- 开启二级缓存 -->
+    <cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>
+
+#end
+#if(${baseResultMap})
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="${package.Entity}.${entity}">
+#foreach($field in ${table.fields})
+    #if(${field.keyFlag})##生成主键排在第一位
+        <id column="${field.name}" property="${field.propertyName}"/>
+    #end
+#end
+#foreach($field in ${table.commonFields})##生成公共字段
+        <result column="${field.name}" property="${field.propertyName}"/>
+#end
+#foreach($field in ${table.fields})
+    #if(!${field.keyFlag})##生成普通字段
+        <result column="${field.name}" property="${field.propertyName}"/>
+    #end
+#end
+    </resultMap>
+#end
+
+#if(${baseColumnList})
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        #foreach($field in ${table.commonFields})
+            #if(${field.name} == ${field.propertyName})${field.name}#else${field.name} AS ${field.propertyName}#end
+        #end
+        ${table.fieldNames}
+    </sql>
+#end
+
+<!-- 通用查询语句 -->
+    <sql id="Base_Where_List">
+#foreach($field in ${table.fields})
+#if(${field.columnName} == ${cfg.FieldlogicDeleteName})
+        <!-- 删除状态查询 -->
+        AND ${cfg.FieldlogicDeleteName} = 1
+#end
+#if(${field.keyFlag})
+        <if test="params.containsKey('${field.propertyName}')">
+            AND ${field.columnName} = #{params.${field.propertyName}}
+        </if>
+#end
+#if(!${field.keyFlag} && ${field.columnName} != ${cfg.FieldlogicDeleteName})
+##不为日期类型
+#if(${field.type.indexOf("DATE")} == -1 && ${field.type.indexOf("date")} == -1 && ${field.type.indexOf("datetime")} == -1 && ${field.type.indexOf("DATETIME")} == -1)
+        <if test="params.${field.propertyName} != null and params.${field.propertyName} != ''">
+            AND ${field.columnName} = #{params.${field.propertyName}}
+        </if>
+##varchar类型加入模糊查询
+#if(${field.type.indexOf("varchar")} != -1 || ${field.type.indexOf("VARCHAR")} != -1 || ${field.type.indexOf("varchar2")} != -1 || ${field.type.indexOf("VARCHAR2")} != -1 )
+#if(${cfg.DBType} == "mysql")
+        <if test="params.${field.propertyName}Like != null and params.${field.propertyName}Like != ''">
+            AND ${field.columnName} LIKE CONCAT('%', #{params.${field.propertyName}Like}, '%')
+        </if>
+#end
+#end
+#end
+#end
+#end
+    </sql>
+
+    <insert id="insertSelective" keyProperty="id" useGeneratedKeys="true" parameterType="${package.Entity}.${entity}">
+        insert into ${table.name}
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+#foreach($field in ${table.fields})
+            <if test="${field.propertyName} != null">
+                ${field.columnName},
+            </if>
+#end
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+#foreach($field in ${table.fields})
+            <if test="${field.propertyName} != null">
+                #{${field.columnName}},
+            </if>
+#end
+        </trim>
+    </insert>
+
+    <sql id="KEY_COLUMN">
+#foreach($field in ${table.fields})
+    #if(${field.keyFlag})
+        ${field.columnName} = #{${field.columnName}}
+    #end
+#end
+    </sql>
+
+    <update id="updateByPrimaryKeySelective" parameterType="${package.Entity}.${entity}">
+    update ${table.name}
+        <set>
+#foreach($field in ${table.fields})
+            <if test="${field.propertyName} != null">
+                ${field.columnName} = #{${field.columnName}},
+            </if>
+#end
+        </set>
+        where <include refid="KEY_COLUMN"/>
+    </update>
+    
+    <!-- ${entity}查询语句 -->
+    <select id="query${entity}ByParams" parameterType="${package.Entity}.${entity}">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM ${table.name}
+        <where>
+            <include refid="Base_Where_List"/>
+        </where>
+    </select>
+
+    <update id="softDeleteById">
+        update ${table.name}
+        set ${cfg.FieldlogicDeleteName} = 0
+        where <include refid="KEY_COLUMN"/>
+    </update>
+
+    <select id="findById"  resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from ${table.name}
+        where <include refid="KEY_COLUMN"/> and ${cfg.FieldlogicDeleteName} = 1
+    </select>
+
+    <select id="findAll"  resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from ${table.name}
+        where ${cfg.FieldlogicDeleteName} = 1
+    </select>
+</mapper>
