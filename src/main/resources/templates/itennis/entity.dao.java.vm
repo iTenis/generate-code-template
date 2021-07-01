@@ -38,7 +38,7 @@ public class ${entity}Dao {
     * @param params 参数
     * @return  结果
     */
-    List<${entity}DTO> query${entity}ByParams(Map<String, Object> params) {
+    public List<${entity}DTO> query${entity}ByParams(Map<String, Object> params) {
         return ${entity.substring(0, 1).toLowerCase()}${entity.substring(1)}Converter.to(${table.mapperName.substring(0, 1).toLowerCase()}${table.mapperName.substring(1)}.query${entity}ByParams(params));
     }
 
@@ -50,7 +50,7 @@ public class ${entity}Dao {
     * @param pageSize   页大小
     * @return   分页对象
     */
-    CommonPageResponseDTO<${entity}DTO> query${entity}ByParams(Map<String, Object> params, Integer pageNo, Integer pageSize) {
+    public CommonPageResponseDTO<${entity}DTO> query${entity}ByParams(Map<String, Object> params, Integer pageNo, Integer pageSize) {
         CommonPageResponseDTO<${entity}DTO> responseDTO = new CommonPageResponseDTO<>();
         if(CollectionUtils.isEmpty(params)){
             responseDTO = findAll(pageNo, pageSize);
@@ -69,7 +69,7 @@ public class ${entity}Dao {
     * @param record 记录
     * @return 主键id
     */
-    Long insertSelective(${entity}DTO record) {
+    public Long insertSelective(${entity}DTO record) {
         ${entity} entity = BeanUtility.beanCopy(record, ${entity}.class);
         int count = ${table.mapperName.substring(0, 1).toLowerCase()}${table.mapperName.substring(1)}.insertSelective(entity);
         if (count > 0) {
@@ -84,7 +84,7 @@ public class ${entity}Dao {
     * @param record 对象
     * @return 更新条数
     */
-    int updateByPrimaryKeySelective(${entity}DTO record) {
+    public int updateByPrimaryKeySelective(${entity}DTO record) {
         ${entity} entity = BeanUtility.beanCopy(record, ${entity}.class);
         return ${table.mapperName.substring(0, 1).toLowerCase()}${table.mapperName.substring(1)}.insertSelective(entity);
     }
@@ -95,7 +95,7 @@ public class ${entity}Dao {
     * @param id 主键Id
     * @return 个数
     */
-    int softDeleteById(Long id) {
+    public int softDeleteById(Long id) {
         return ${table.mapperName.substring(0, 1).toLowerCase()}${table.mapperName.substring(1)}.softDeleteById(id);
     }
 
@@ -104,7 +104,7 @@ public class ${entity}Dao {
     *
     * @param id 主键
     */
-    ${entity} findById(Long id) {
+    public ${entity} findById(Long id) {
         if(Objects.isNull(id)){
             return null;
         }
@@ -117,7 +117,7 @@ public class ${entity}Dao {
     * @param pageSize 页大小
     * @return 分页对象
     */
-    CommonPageResponseDTO<${entity}DTO> findAll(Integer pageNo, Integer pageSize) {
+    public CommonPageResponseDTO<${entity}DTO> findAll(Integer pageNo, Integer pageSize) {
         CommonPageResponseDTO<${entity}DTO> responseDTO = new CommonPageResponseDTO<>();
         PageInfo<${entity}> entityPageInfo = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(
                 () -> ${table.mapperName.substring(0, 1).toLowerCase()}${table.mapperName.substring(1)}.findAll());

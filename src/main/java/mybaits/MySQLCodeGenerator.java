@@ -22,13 +22,13 @@ public class MySQLCodeGenerator {
         };
         // 表名，为空，不生成表
         String[] tableNames = {
-                "counter_property"
+                "act_award_coupon_record"
         };
         // 字段前缀
         String[] fieldPrefixes = {
 
         };
-        GenneratorService.paramsConfig.setBasePack("test");
+        GenneratorService.paramsConfig.setBasePack("com.ymm.activity.module.couponrecord");
         GenneratorService.execute(
                 DbType.MYSQL,
                 "jdbc:mysql://wnojrdevmysql.service.dev.consul:3306/operation_activity?characterEncoding=utf8",

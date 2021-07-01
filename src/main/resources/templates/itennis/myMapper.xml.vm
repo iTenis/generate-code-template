@@ -87,7 +87,7 @@
     <sql id="KEY_COLUMN">
 #foreach($field in ${table.fields})
     #if(${field.keyFlag})
-        ${field.columnName} = #{${field.columnName}}
+        ${field.columnName} = #{${field.propertyName}}
     #end
 #end
     </sql>
@@ -97,7 +97,7 @@
         <set>
 #foreach($field in ${table.fields})
             <if test="${field.propertyName} != null">
-                ${field.columnName} = #{${field.columnName}},
+                ${field.columnName} = #{${field.propertyName}},
             </if>
 #end
         </set>
