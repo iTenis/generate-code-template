@@ -10,6 +10,9 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.ymm.activity.common.util.BeanUtility;
 import com.ymm.activity.dto.CommonPageResponseDTO;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.mybatis.spring.SqlSessionTemplate;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -27,10 +30,13 @@ import java.util.Objects;
 public class ${entity}Dao {
 
     @Resource
-    ${table.mapperName} ${table.mapperName.substring(0, 1).toLowerCase()}${table.mapperName.substring(1)};
+    private ${table.mapperName} ${table.mapperName.substring(0, 1).toLowerCase()}${table.mapperName.substring(1)};
 
     @Resource
-    ${entity}Converter ${entity.substring(0, 1).toLowerCase()}${entity.substring(1)}Converter;
+    private ${entity}Converter ${entity.substring(0, 1).toLowerCase()}${entity.substring(1)}Converter;
+
+    @Resource
+    private SqlSessionTemplate sqlSessionTemplate;
 
     /**
     * 通用条件查询
@@ -78,6 +84,36 @@ public class ${entity}Dao {
         return -1L;
     }
 
+
+    /**
+     * 批量插入
+     *
+     * @param records 记录
+     * @return int
+     */
+    public int batchInsertSelective(List<${entity}DTO> records, Integer batchSize) {
+        final SqlSession sqlSession = sqlSessionTemplate.getSqlSessionFactory().openSession(ExecutorType.BATCH, false);
+        int i = 0;
+        try {
+            final ${entity}Mapper mapper = sqlSession.getMapper(${entity}Mapper.class);
+            List<MessageRecord> convertRecords = BeanUtility.convertOtherBeanList(records, ${entity}.class);
+            for (${entity} record : convertRecords) {
+                mapper.insertSelective(record);
+                if ((batchSize != -1 && i % batchSize == 0) || i == convertRecords.size() - 1) {
+                    sqlSession.commit();
+                    sqlSession.clearCache();
+                }
+                i++;
+            }
+            return i;
+        } catch (Exception e) {
+            sqlSession.rollback();
+        } finally {
+            sqlSession.close();
+        }
+        return -1;
+    }
+
     /**
     * 更新记录
     *
@@ -86,7 +122,7 @@ public class ${entity}Dao {
     */
     public int updateByPrimaryKeySelective(${entity}DTO record) {
         ${entity} entity = BeanUtility.beanCopy(record, ${entity}.class);
-        return ${table.mapperName.substring(0, 1).toLowerCase()}${table.mapperName.substring(1)}.insertSelective(entity);
+        return ${table.mapperName.substring(0, 1).toLowerCase()}${table.mapperName.substring(1)}.updateByPrimaryKeySelective(entity);
     }
 
     /**
